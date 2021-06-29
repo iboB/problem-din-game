@@ -1,5 +1,6 @@
 require 'timeout'
 require 'fileutils'
+require 'json'
 
 WorkDir = ARGV[0] || 'solutions/mnk'
 BuildDir = File.join(WorkDir, 'build')
@@ -54,22 +55,23 @@ def check(input, output)
 end
 
 puts 'Running tests...'
-Dir['tests/*'].each do |input_file|
+report = Dir['tests/*'].map { |input_file|
   input = File.open(input_file, &:readline).split(' ').map(&:to_i)
   tname = File.basename(input_file)
 
   puts "#{tname}: #{input}"
 
-  exes.each do |edata|
-    print "#{edata[:name]}: "
+  result = exes.map { |edata|
+    ename = edata[:name]
+    print "#{ename}: "
 
-    output_file = File.join(ResultDir, edata[:name] + '.' + tname)
+    output_file = File.join(ResultDir, ename + '.' + tname)
 
     time = (0..3).map { execute(edata[:exe], input_file, output_file, 5) }.min
 
     if time == 6
       puts 'timeout'
-      next
+      next [ename, 'timeout']
     end
 
     print "#{time} seconds, "
@@ -81,8 +83,13 @@ Dir['tests/*'].each do |input_file|
 
     if !check(input, output)
       puts "incorrect"
+      [ename, 'incorrect']
     else
       puts "correct in #{output.length} moves"
+      [ename, {time: time, moves: output.length}]
     end
-  end
-end
+  }
+  [input.join(' '), result.to_h]
+}.to_h
+
+File.write(File.join(ResultDir, 'report.json'), JSON.pretty_generate(report))
