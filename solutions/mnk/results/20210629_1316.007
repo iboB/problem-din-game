@@ -1,0 +1,17 @@
+B->A
+A->B
+A->B
+C->B
+C->A
+C->A
+C->A
+B->C
+A->C
+A->C
+C->A
+A->B
+B->A
+A->C
+C->A
+B->A
+A->C
