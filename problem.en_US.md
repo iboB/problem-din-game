@@ -31,3 +31,17 @@ C->A
 ```
 
 *PS We remind you that this is not the only valid output for the example input*
+
+## Ranking
+
+The maximum allowed time for the program per test is 5 seconds. All solutions which exceed this time or produce a wrong answer (a sequence of moves which doesn't lead to an empty box, or an ouput of `NOT POSSIBLE` when there is a possible solution) receive 0 points.
+
+After this there are two modes of ranking:
+
+### 1. Shortest Move Sequence
+
+For each test the correct solutions are sorted by the number of moves. The solutions with the shortest sequence receive 10 points and the rest receive 1 point. The shortest sequence solutions are additionally sorted by execution time and the top three of them receive 3, 2, and 1 additional points.
+
+### 2. Fastest Correct Solution
+
+For each tests the solutions are sorted by execution time regardless of the number of moves. The top 9 of them receive from 10 to 2 points respectively and the rest receive 1 point.
