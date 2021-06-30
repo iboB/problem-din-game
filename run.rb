@@ -34,8 +34,8 @@ exes = Dir[File.join(WorkDir, '*')].map { |file|
 }.compact
 
 def execute(exe, input_file, output_file, time_limit)
-  pid = Process.spawn(exe, :in=>input_file, :out=>output_file)
   start = Time.new.to_f
+  pid = Process.spawn(exe, :in=>input_file, :out=>output_file)
   begin
     Timeout::timeout(time_limit) { Process.wait pid }
   rescue Timeout::Error
