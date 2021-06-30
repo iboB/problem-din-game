@@ -15,7 +15,7 @@ def build_cxx(name, source)
   exe = File.join(BuildDir, name)
   cmdline = "g++ #{source} -std=c++20 -O3 -o #{exe}"
   # `#{cmdline}`
-  {name: name, exe: exe}
+  {name: name, source: source, exe: exe}
 end
 
 def build(file)
@@ -94,5 +94,6 @@ report = Dir['tests/*'].map { |input_file|
   [input.join(' '), result.to_h]
 }.to_h
 
-summary = {solutions: exes, report: report}
+solutions = exes.map { |edata| [edata[:name], edata[:source]] }.to_h
+summary = {solutions: solutions, report: report}
 File.write(File.join(SummaryDir, 'summary.json'), JSON.pretty_generate(summary))
