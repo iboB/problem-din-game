@@ -30,7 +30,7 @@ C->B
 C->A
 ```
 
-*PS We remind you that this is not the only valid output for the example input*
+*We remind you that this is not the only valid output for the example input*
 
 ## Ranking
 
