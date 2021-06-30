@@ -1,4 +1,10 @@
 C->B
 B->C
-B->A
+C->A
+C->A
+A->B
+A->C
+C->B
+C->A
 B->C
+A->C
