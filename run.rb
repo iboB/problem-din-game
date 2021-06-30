@@ -4,14 +4,16 @@ require 'json'
 
 WorkDir = ARGV[0] || 'solutions/mnk'
 BuildDir = File.join(WorkDir, 'build')
-ResultDir = File.join(WorkDir, 'results')
+TestDir = File.join(WorkDir, 'test')
+SummaryDir = File.join(WorkDir, 'summary')
 
 FileUtils.mkdir_p BuildDir
-FileUtils.mkdir_p ResultDir
+FileUtils.mkdir_p TestDir
+FileUtils.mkdir_p SummaryDir
 
 def build_cxx(name, source)
   exe = File.join(BuildDir, name)
-  cmdline = "g++ #{source} -std=c++17 -O3 -o #{exe}"
+  cmdline = "g++ #{source} -std=c++20 -O3 -o #{exe}"
   # `#{cmdline}`
   {name: name, exe: exe}
 end
@@ -65,7 +67,7 @@ report = Dir['tests/*'].map { |input_file|
     ename = edata[:name]
     print "#{ename}: "
 
-    output_file = File.join(ResultDir, ename + '.' + tname)
+    output_file = File.join(TestDir, ename + '.' + tname)
 
     time = (0..3).map { execute(edata[:exe], input_file, output_file, 5) }.min
 
@@ -92,4 +94,5 @@ report = Dir['tests/*'].map { |input_file|
   [input.join(' '), result.to_h]
 }.to_h
 
-File.write(File.join(ResultDir, 'report.json'), JSON.pretty_generate(report))
+summary = {solutions: exes, report: report}
+File.write(File.join(SummaryDir, 'summary.json'), JSON.pretty_generate(summary))
