@@ -14,37 +14,26 @@ class Score
     else
       @time = result["time"]
       @moves = result["moves"]
-      @desc = "#{@moves} / #{(@time*1000).round} ms"
+      @desc = "#{@moves} moves in #{(@time*1000).round} ms"
     end
   end
 
   attr_reader :sol, :time, :moves, :desc
-  attr_accessor :rank, :score
+  attr_accessor :score
 end
 
-class SolutionScore
-  def initialize
-    @total = 0
-    @scores = {}
-  end
-  attr_accessor :scores, :total
-end
-
-def per_solution(test_results)
-  ret = {}
+def total(test_results)
+  ret = Hash.new(0)
   test_results.each do |test, scores|
     scores.each do |score|
-      ret[score.sol] = SolutionScore.new if !ret[score.sol]
-      ss = ret[score.sol]
-      ss.total += score.score
-      ss.scores[test] = score
+      ret[score.sol] += score.score
     end
   end
-  ret.to_a.sort_by { |s, ss| ss.total }.reverse
+  ret.to_a.sort_by { |sol, score| score }.reverse
 end
 
 def score_shortest(summary)
-  per_solution summary["report"].transform_values { |test_data|
+  summary["report"].transform_values { |test_data|
     test_result = test_data.each.map { |sol, result|
       score = Score.new(sol, result)
     }.group_by { |score|
@@ -75,43 +64,42 @@ def score_shortest(summary)
 
     test_result.map { |moves|
       moves[1]
-    }.flatten.each_with_index do |score, i|
-      score.rank = i+1
-    end
+    }.flatten
   }
 end
 
-def tr(ar)
+def tr(*ar)
   '|' + ar.join('|') + '|'
 end
 
-def gen_table(summary, scores_per_solution)
-  solutions = summary["solutions"]
-  report = summary["report"]
+def write_tables(f, slinks, test_results)
+  f.puts
+  f.puts tr('#', 'Solution', 'Score')
+  f.puts tr(['---']*3)
 
-  head = ['Solution', 'Total'] + report.map { |test, scores|
-     [test, 'Score', 'Rank']
-  }.flatten
-
-  ret = []
-  ret << tr(head)
-  ret << tr(['---'] * head.length)
-
-  scores_per_solution.each do |solution, ss|
-    slink = "[#{solution}](../#{File.basename(solutions[solution])})"
-    ret << tr([slink, ss.total] + report.map { |test, _|
-      score = ss.scores[test]
-      [score.desc, score.score, "##{score.rank}"]
-    }.flatten)
+  total(test_results).each_with_index do |ss, i|
+    f.puts tr(i+1, slinks[ss[0]], ss[1])
   end
 
-  ret.join("\n")
+  test_results.each do |test, scores|
+    f.puts
+    f.puts "## #{test}"
+    f.puts
+    f.puts tr('#', 'Solution', 'Result', 'Score')
+    f.puts tr(['---']*4)
+    scores.each_with_index do |score, i|
+      f.puts tr(i+1, slinks[score.sol], score.desc, score.score)
+    end
+  end
 end
 
 summary = JSON.parse(File.read(File.join(SummaryDir, 'summary.json')))
 
+slinks = summary['solutions'].map { |name, src|
+  [name, "[#{name}](../#{File.basename(src)})"]
+}.to_h
+
 File.open(File.join(SummaryDir, "shortest.md"), 'w') do |f|
   f.puts '# Shortest'
-  f.puts
-  f.puts gen_table(summary, score_shortest(summary))
+  write_tables(f, slinks, score_shortest(summary))
 end
