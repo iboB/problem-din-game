@@ -14,14 +14,14 @@ FileUtils.mkdir_p SummaryDir
 def build_cxx(name, source)
   exe = File.join(BuildDir, name)
   cmdline = "g++ #{source} -std=c++20 -O3 -o #{exe}"
-  #`#{cmdline}`
+  `#{cmdline}`
   {name: name, source: source, exe: exe, wd: '.'}
 end
 
 def build_nim(name, source)
   exe = File.join(BuildDir, name)
   cmdline = "nim c -d:danger --gc:none -o:#{exe} #{source}"
-  #`#{cmdline}`
+  `#{cmdline}`
   {name: name, source: source, exe: exe, wd: '.'}
 end
 
@@ -29,7 +29,7 @@ def build_java(name, source)
   bdir = File.join(BuildDir, "#{name}.jbuild")
   FileUtils.mkdir_p bdir
   cmdline = "javac #{source} -d #{bdir}"
-  #`#{cmdline}`
+  `#{cmdline}`
   {name: name, source: source, exe: 'java Din', wd: bdir}
 end
 
