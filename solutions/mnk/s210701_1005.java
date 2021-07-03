@@ -1,8 +1,8 @@
-package com.company;
+//j package com.company;
 
 import java.util.*;
 
-public class Din {
+/*j public */ class Din {
 
     static class Triple {
         int a;
