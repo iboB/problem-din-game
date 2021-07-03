@@ -14,8 +14,23 @@ FileUtils.mkdir_p SummaryDir
 def build_cxx(name, source)
   exe = File.join(BuildDir, name)
   cmdline = "g++ #{source} -std=c++20 -O3 -o #{exe}"
-  # `#{cmdline}`
-  {name: name, source: source, exe: exe}
+  #`#{cmdline}`
+  {name: name, source: source, exe: exe, wd: '.'}
+end
+
+def build_nim(name, source)
+  exe = File.join(BuildDir, name)
+  cmdline = "nim c -d:danger --gc:none -o:#{exe} #{source}"
+  #`#{cmdline}`
+  {name: name, source: source, exe: exe, wd: '.'}
+end
+
+def build_java(name, source)
+  bdir = File.join(BuildDir, "#{name}.jbuild")
+  FileUtils.mkdir_p bdir
+  cmdline = "javac #{source} -d #{bdir}"
+  #`#{cmdline}`
+  {name: name, source: source, exe: 'java Din', wd: bdir}
 end
 
 def build(file)
@@ -24,6 +39,10 @@ def build(file)
   case File.extname(file)
   when '.cpp'
     build_cxx(name, file)
+  when '.nim'
+    build_nim(name, file)
+  when '.java'
+    build_java(name, file)
   else
     puts "Error: No rule available to build '#{file}'"
   end
@@ -35,9 +54,9 @@ exes = Dir[File.join(WorkDir, '*')].map { |file|
   build(file)
 }.compact
 
-def execute(exe, input_file, output_file, time_limit)
+def execute(exe, wd, input_file, output_file, time_limit)
   start = Time.new.to_f
-  pid = Process.spawn(exe, :in=>input_file, :out=>output_file)
+  pid = Process.spawn(exe, :chdir=>wd, :in=>input_file, :out=>output_file)
   begin
     Timeout::timeout(time_limit) { Process.wait pid }
   rescue Timeout::Error
@@ -69,7 +88,7 @@ report = Dir['tests/*'].map { |input_file|
 
     output_file = File.join(TestDir, ename + '.' + tname)
 
-    time = (0..3).map { execute(edata[:exe], input_file, output_file, 5) }.min
+    time = (0..3).map { execute(edata[:exe], edata[:wd], input_file, output_file, 5) }.min
 
     if time == 6
       puts 'timeout'
