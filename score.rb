@@ -68,6 +68,25 @@ def score_shortest(summary)
   }
 end
 
+def score_fastest(summary)
+  summary["report"].transform_values { |test_data|
+    test_result = test_data.each.map { |sol, result|
+      score = Score.new(sol, result)
+    }.sort_by { |score|
+      score.time
+    }
+
+    pts = 10
+    test_result.each do |score|
+      break if score.score
+      score.score = pts
+      pts -= 1 if pts > 1
+    end
+
+    test_result
+  }
+end
+
 def tr(*ar)
   '|' + ar.join('|') + '|'
 end
@@ -102,4 +121,9 @@ slinks = summary['solutions'].map { |name, src|
 File.open(File.join(SummaryDir, "shortest.md"), 'w') do |f|
   f.puts '# Shortest'
   write_tables(f, slinks, score_shortest(summary))
+end
+
+File.open(File.join(SummaryDir, "fastest.md"), 'w') do |f|
+  f.puts '# Shortest'
+  write_tables(f, slinks, score_fastest(summary))
 end
