@@ -33,6 +33,10 @@ def build_java(name, source)
   {name: name, source: source, exe: 'java Din', wd: bdir}
 end
 
+def build_python(name, source)
+  {name: name, source: source, exe: "python #{source}", wd: '.'}
+end
+
 def build(file)
   name = File.basename(file, '.*')
   puts "Building solution '#{name}'"
@@ -43,6 +47,8 @@ def build(file)
     build_nim(name, file)
   when '.java'
     build_java(name, file)
+  when '.py'
+    build_python(name, file)
   else
     puts "Error: No rule available to build '#{file}'"
   end
