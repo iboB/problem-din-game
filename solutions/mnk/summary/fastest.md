@@ -1,4 +1,4 @@
-# Shortest
+# Fastest
 
 |#|Solution|Score|
 |---|---|---|

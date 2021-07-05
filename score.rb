@@ -124,6 +124,6 @@ File.open(File.join(SummaryDir, "shortest.md"), 'w') do |f|
 end
 
 File.open(File.join(SummaryDir, "fastest.md"), 'w') do |f|
-  f.puts '# Shortest'
+  f.puts '# Fastest'
   write_tables(f, slinks, score_fastest(summary))
 end
